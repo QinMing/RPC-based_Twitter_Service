@@ -13,7 +13,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
 try:
-  transport = TSocket.TSocket('localhost', 9090)
+  transport = TSocket.TSocket('localhost', 9999)
 
   # Buffering is critical. Raw sockets are very slow
   transport = TTransport.TBufferedTransport(transport)
@@ -28,10 +28,15 @@ try:
   transport.open()
 
   client.ping()
+  client.createUser('jwchen')
+  client.createUser('mqin')
+  #client.createUser('jwchen')
+  client.subscribe('mqin','jwchen')
   print 'ping()'
 
   # Close!
   transport.close()
 
 except Thrift.TException, tx:
-  print '%s' % (tx.message)
+  print '%s' % (tx.user)
+  print 'This is AlreadyExistUser Exception'
