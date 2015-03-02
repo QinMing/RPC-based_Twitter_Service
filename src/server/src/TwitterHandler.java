@@ -3,12 +3,14 @@ package edu.ucsd.cse124;
 import java.util.List;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class TwitterHandler implements Twitter.Iface {
 	
 	private HashSet<String> userName = new HashSet<String>();
 	//private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
-	private HashMap<String,List<String> > userSubscribe = new HashMap<String,List<String> >();
+	private HashMap<String,LinkedList<String> > userSubscribeMap = new HashMap<String,LinkedList<String> >();
 
     @Override
     public void ping() {
@@ -23,10 +25,33 @@ public class TwitterHandler implements Twitter.Iface {
 			AlreadyExistsException e = new AlreadyExistsException(handle);
 			throw e;
 		}
-		List<String> subscribeList = new List<String>();
-		userSubscribe.put(handle, subscribeList);
+		LinkedList<String> subscribeList = new LinkedList<String>();
+		userSubscribeMap.put(handle, subscribeList);
 		System.out.println("test create User");
     }
+
+	private void checkUserExist(String handle) 
+		throws NoSuchUserException	  
+	{
+		if (userName.contains(handle) == false) {
+			NoSuchUserException e = new NoSuchUserException(handle);
+			throw e;
+		}
+	}
+
+	@Override
+	public void printSubscribeName(String handle)
+		throws NoSuchUserException
+	{
+		checkUserExist(handle);
+		LinkedList<String> subscribeList = userSubscribeMap.get(handle);
+		ListIterator<String> listIterator = subscribeList.listIterator();
+		System.out.println("Print Subscribe List");
+	    while (listIterator.hasNext()) {
+	    	System.out.println("Subscribed: " + listIterator.next());
+	    }
+		System.out.println("Print Complete");
+	}
 
     @Override
     public void subscribe(String handle, String theirhandle)
@@ -34,16 +59,9 @@ public class TwitterHandler implements Twitter.Iface {
     {
 		System.out.println("user name:            " + handle);
 		System.out.println("subscribed user name: " + theirhandle);
-		if (userName.contains(handle) == false) {
-			NoSuchUserException e = new NoSuchUserException(handle);
-			throw e;
-		}
-		if (userName.contains(theirhandle) == false) {
-			NoSuchUserException e = new NoSuchUserException(theirhandle);
-			throw e;
-		}
-		System.out.println("name check");
-		List<String> userSubList = userSubscribe.get(handle);
+		checkUserExist(handle);
+		checkUserExist(theirhandle);
+		LinkedList<String> userSubList = userSubscribeMap.get(handle);
 		userSubList.add(theirhandle);
 		System.out.println("test subscribe user");
     }
@@ -52,6 +70,12 @@ public class TwitterHandler implements Twitter.Iface {
     public void unsubscribe(String handle, String theirhandle)
         throws NoSuchUserException
     {
+		System.out.println("user name:            " + handle);
+		System.out.println("subscribed user name: " + theirhandle);
+		checkUserExist(handle);
+		checkUserExist(theirhandle);
+		LinkedList<String> userSubList = userSubscribeMap.get(handle);
+		userSubList.remove(theirhandle);
     }
 
     @Override

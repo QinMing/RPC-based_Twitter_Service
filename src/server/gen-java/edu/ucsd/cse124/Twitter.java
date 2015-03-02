@@ -36,6 +36,8 @@ public class Twitter {
 
     public void ping() throws org.apache.thrift.TException;
 
+    public void printSubscribeName(String handle) throws NoSuchUserException, org.apache.thrift.TException;
+
     public void createUser(String handle) throws AlreadyExistsException, org.apache.thrift.TException;
 
     public void subscribe(String handle, String theirhandle) throws NoSuchUserException, org.apache.thrift.TException;
@@ -55,6 +57,8 @@ public class Twitter {
   public interface AsyncIface {
 
     public void ping(org.apache.thrift.async.AsyncMethodCallback<AsyncClient.ping_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void printSubscribeName(String handle, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.printSubscribeName_call> resultHandler) throws org.apache.thrift.TException;
 
     public void createUser(String handle, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.createUser_call> resultHandler) throws org.apache.thrift.TException;
 
@@ -108,6 +112,29 @@ public class Twitter {
     {
       ping_result result = new ping_result();
       receiveBase(result, "ping");
+      return;
+    }
+
+    public void printSubscribeName(String handle) throws NoSuchUserException, org.apache.thrift.TException
+    {
+      send_printSubscribeName(handle);
+      recv_printSubscribeName();
+    }
+
+    public void send_printSubscribeName(String handle) throws org.apache.thrift.TException
+    {
+      printSubscribeName_args args = new printSubscribeName_args();
+      args.setHandle(handle);
+      sendBase("printSubscribeName", args);
+    }
+
+    public void recv_printSubscribeName() throws NoSuchUserException, org.apache.thrift.TException
+    {
+      printSubscribeName_result result = new printSubscribeName_result();
+      receiveBase(result, "printSubscribeName");
+      if (result.userx != null) {
+        throw result.userx;
+      }
       return;
     }
 
@@ -334,6 +361,38 @@ public class Twitter {
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
         (new Client(prot)).recv_ping();
+      }
+    }
+
+    public void printSubscribeName(String handle, org.apache.thrift.async.AsyncMethodCallback<printSubscribeName_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      printSubscribeName_call method_call = new printSubscribeName_call(handle, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class printSubscribeName_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String handle;
+      public printSubscribeName_call(String handle, org.apache.thrift.async.AsyncMethodCallback<printSubscribeName_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.handle = handle;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("printSubscribeName", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        printSubscribeName_args args = new printSubscribeName_args();
+        args.setHandle(handle);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws NoSuchUserException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_printSubscribeName();
       }
     }
 
@@ -593,6 +652,7 @@ public class Twitter {
 
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
       processMap.put("ping", new ping());
+      processMap.put("printSubscribeName", new printSubscribeName());
       processMap.put("createUser", new createUser());
       processMap.put("subscribe", new subscribe());
       processMap.put("unsubscribe", new unsubscribe());
@@ -619,6 +679,30 @@ public class Twitter {
       public ping_result getResult(I iface, ping_args args) throws org.apache.thrift.TException {
         ping_result result = new ping_result();
         iface.ping();
+        return result;
+      }
+    }
+
+    public static class printSubscribeName<I extends Iface> extends org.apache.thrift.ProcessFunction<I, printSubscribeName_args> {
+      public printSubscribeName() {
+        super("printSubscribeName");
+      }
+
+      public printSubscribeName_args getEmptyArgsInstance() {
+        return new printSubscribeName_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public printSubscribeName_result getResult(I iface, printSubscribeName_args args) throws org.apache.thrift.TException {
+        printSubscribeName_result result = new printSubscribeName_result();
+        try {
+          iface.printSubscribeName(args.handle);
+        } catch (NoSuchUserException userx) {
+          result.userx = userx;
+        }
         return result;
       }
     }
@@ -1284,6 +1368,716 @@ public class Twitter {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, ping_result struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class printSubscribeName_args implements org.apache.thrift.TBase<printSubscribeName_args, printSubscribeName_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("printSubscribeName_args");
+
+    private static final org.apache.thrift.protocol.TField HANDLE_FIELD_DESC = new org.apache.thrift.protocol.TField("handle", org.apache.thrift.protocol.TType.STRING, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new printSubscribeName_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new printSubscribeName_argsTupleSchemeFactory());
+    }
+
+    public String handle; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      HANDLE((short)1, "handle");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // HANDLE
+            return HANDLE;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.HANDLE, new org.apache.thrift.meta_data.FieldMetaData("handle", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(printSubscribeName_args.class, metaDataMap);
+    }
+
+    public printSubscribeName_args() {
+    }
+
+    public printSubscribeName_args(
+      String handle)
+    {
+      this();
+      this.handle = handle;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public printSubscribeName_args(printSubscribeName_args other) {
+      if (other.isSetHandle()) {
+        this.handle = other.handle;
+      }
+    }
+
+    public printSubscribeName_args deepCopy() {
+      return new printSubscribeName_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.handle = null;
+    }
+
+    public String getHandle() {
+      return this.handle;
+    }
+
+    public printSubscribeName_args setHandle(String handle) {
+      this.handle = handle;
+      return this;
+    }
+
+    public void unsetHandle() {
+      this.handle = null;
+    }
+
+    /** Returns true if field handle is set (has been assigned a value) and false otherwise */
+    public boolean isSetHandle() {
+      return this.handle != null;
+    }
+
+    public void setHandleIsSet(boolean value) {
+      if (!value) {
+        this.handle = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case HANDLE:
+        if (value == null) {
+          unsetHandle();
+        } else {
+          setHandle((String)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case HANDLE:
+        return getHandle();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case HANDLE:
+        return isSetHandle();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof printSubscribeName_args)
+        return this.equals((printSubscribeName_args)that);
+      return false;
+    }
+
+    public boolean equals(printSubscribeName_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_handle = true && this.isSetHandle();
+      boolean that_present_handle = true && that.isSetHandle();
+      if (this_present_handle || that_present_handle) {
+        if (!(this_present_handle && that_present_handle))
+          return false;
+        if (!this.handle.equals(that.handle))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(printSubscribeName_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      printSubscribeName_args typedOther = (printSubscribeName_args)other;
+
+      lastComparison = Boolean.valueOf(isSetHandle()).compareTo(typedOther.isSetHandle());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetHandle()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.handle, typedOther.handle);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("printSubscribeName_args(");
+      boolean first = true;
+
+      sb.append("handle:");
+      if (this.handle == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.handle);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class printSubscribeName_argsStandardSchemeFactory implements SchemeFactory {
+      public printSubscribeName_argsStandardScheme getScheme() {
+        return new printSubscribeName_argsStandardScheme();
+      }
+    }
+
+    private static class printSubscribeName_argsStandardScheme extends StandardScheme<printSubscribeName_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, printSubscribeName_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // HANDLE
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.handle = iprot.readString();
+                struct.setHandleIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, printSubscribeName_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.handle != null) {
+          oprot.writeFieldBegin(HANDLE_FIELD_DESC);
+          oprot.writeString(struct.handle);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class printSubscribeName_argsTupleSchemeFactory implements SchemeFactory {
+      public printSubscribeName_argsTupleScheme getScheme() {
+        return new printSubscribeName_argsTupleScheme();
+      }
+    }
+
+    private static class printSubscribeName_argsTupleScheme extends TupleScheme<printSubscribeName_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, printSubscribeName_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetHandle()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetHandle()) {
+          oprot.writeString(struct.handle);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, printSubscribeName_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.handle = iprot.readString();
+          struct.setHandleIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class printSubscribeName_result implements org.apache.thrift.TBase<printSubscribeName_result, printSubscribeName_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("printSubscribeName_result");
+
+    private static final org.apache.thrift.protocol.TField USERX_FIELD_DESC = new org.apache.thrift.protocol.TField("userx", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new printSubscribeName_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new printSubscribeName_resultTupleSchemeFactory());
+    }
+
+    public NoSuchUserException userx; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      USERX((short)1, "userx");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // USERX
+            return USERX;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.USERX, new org.apache.thrift.meta_data.FieldMetaData("userx", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(printSubscribeName_result.class, metaDataMap);
+    }
+
+    public printSubscribeName_result() {
+    }
+
+    public printSubscribeName_result(
+      NoSuchUserException userx)
+    {
+      this();
+      this.userx = userx;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public printSubscribeName_result(printSubscribeName_result other) {
+      if (other.isSetUserx()) {
+        this.userx = new NoSuchUserException(other.userx);
+      }
+    }
+
+    public printSubscribeName_result deepCopy() {
+      return new printSubscribeName_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.userx = null;
+    }
+
+    public NoSuchUserException getUserx() {
+      return this.userx;
+    }
+
+    public printSubscribeName_result setUserx(NoSuchUserException userx) {
+      this.userx = userx;
+      return this;
+    }
+
+    public void unsetUserx() {
+      this.userx = null;
+    }
+
+    /** Returns true if field userx is set (has been assigned a value) and false otherwise */
+    public boolean isSetUserx() {
+      return this.userx != null;
+    }
+
+    public void setUserxIsSet(boolean value) {
+      if (!value) {
+        this.userx = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case USERX:
+        if (value == null) {
+          unsetUserx();
+        } else {
+          setUserx((NoSuchUserException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case USERX:
+        return getUserx();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case USERX:
+        return isSetUserx();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof printSubscribeName_result)
+        return this.equals((printSubscribeName_result)that);
+      return false;
+    }
+
+    public boolean equals(printSubscribeName_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_userx = true && this.isSetUserx();
+      boolean that_present_userx = true && that.isSetUserx();
+      if (this_present_userx || that_present_userx) {
+        if (!(this_present_userx && that_present_userx))
+          return false;
+        if (!this.userx.equals(that.userx))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(printSubscribeName_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      printSubscribeName_result typedOther = (printSubscribeName_result)other;
+
+      lastComparison = Boolean.valueOf(isSetUserx()).compareTo(typedOther.isSetUserx());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetUserx()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.userx, typedOther.userx);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("printSubscribeName_result(");
+      boolean first = true;
+
+      sb.append("userx:");
+      if (this.userx == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.userx);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class printSubscribeName_resultStandardSchemeFactory implements SchemeFactory {
+      public printSubscribeName_resultStandardScheme getScheme() {
+        return new printSubscribeName_resultStandardScheme();
+      }
+    }
+
+    private static class printSubscribeName_resultStandardScheme extends StandardScheme<printSubscribeName_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, printSubscribeName_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // USERX
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+                struct.userx = new NoSuchUserException();
+                struct.userx.read(iprot);
+                struct.setUserxIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, printSubscribeName_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.userx != null) {
+          oprot.writeFieldBegin(USERX_FIELD_DESC);
+          struct.userx.write(oprot);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class printSubscribeName_resultTupleSchemeFactory implements SchemeFactory {
+      public printSubscribeName_resultTupleScheme getScheme() {
+        return new printSubscribeName_resultTupleScheme();
+      }
+    }
+
+    private static class printSubscribeName_resultTupleScheme extends TupleScheme<printSubscribeName_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, printSubscribeName_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetUserx()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetUserx()) {
+          struct.userx.write(oprot);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, printSubscribeName_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          struct.userx = new NoSuchUserException();
+          struct.userx.read(iprot);
+          struct.setUserxIsSet(true);
+        }
       }
     }
 

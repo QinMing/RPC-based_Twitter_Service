@@ -27,6 +27,9 @@ exception NoSuchTweetException {
 
 service Twitter {
     void ping(),
+	
+	void printSubscribeName(1:string handle) throws
+		(1:NoSuchUserException userx),
 
     void createUser(1:string handle) throws
         (1:AlreadyExistsException existsx),

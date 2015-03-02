@@ -32,6 +32,9 @@ try:
   client.createUser('mqin')
   #client.createUser('jwchen')
   client.subscribe('mqin','jwchen')
+  client.printSubscribeName('mqin')
+  client.unsubscribe('mqin','jwchen')
+  client.printSubscribeName('mqin')
   print 'ping()'
 
   # Close!
@@ -39,4 +42,7 @@ try:
 
 except Thrift.TException, tx:
   print '%s' % (tx.user)
-  print 'This is AlreadyExistUser Exception'
+  #if tx is AlreadyExistsException:
+    #print '%s' % (tx.user)
+  #else: 
+  	#print '%s' % (tx.message)
