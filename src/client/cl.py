@@ -31,7 +31,7 @@ try:
   client.createUser('jwchen')
   client.createUser('mqin')
   #client.createUser('jwchen')
-  client.subscribe('mqin','jwchen')
+  client.subscribe('mqin','porter')
   client.printSubscribeName('mqin')
   client.unsubscribe('mqin','jwchen')
   client.printSubscribeName('mqin')
@@ -40,9 +40,9 @@ try:
   # Close!
   transport.close()
 
-except Thrift.TException, tx:
+except AlreadyExistsException, tx:
   print '%s' % (tx.user)
-  #if tx is AlreadyExistsException:
-    #print '%s' % (tx.user)
-  #else: 
-  	#print '%s' % (tx.message)
+except NoSuchUserException, tx:
+  print '%s' % (tx.user)
+except Thrift.TException, tx:
+  print '%s' % (tx.message)
