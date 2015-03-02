@@ -13,7 +13,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
 try:
-  transport = TSocket.TSocket('localhost', 9090)
+  transport = TSocket.TSocket('localhost', 9091)
 
   # Buffering is critical. Raw sockets are very slow
   transport = TTransport.TBufferedTransport(transport)

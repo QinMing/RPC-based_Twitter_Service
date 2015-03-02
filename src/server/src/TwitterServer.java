@@ -10,7 +10,7 @@ public class TwitterServer {
 
  public static void StartsimpleServer(Twitter.Processor<TwitterHandler> processor) {
   try {
-   TServerTransport serverTransport = new TServerSocket(9090);
+   TServerTransport serverTransport = new TServerSocket(9091);
 
    //TServer server = new TSimpleServer(
    //  new Args(serverTransport).processor(processor));

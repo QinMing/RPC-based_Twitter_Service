@@ -6,6 +6,7 @@ public class TwitterHandler implements Twitter.Iface {
 
     @Override
     public void ping() {
+	System.out.println("Ping received");
     }
 
     @Override
