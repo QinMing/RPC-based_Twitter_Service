@@ -5,6 +5,22 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.PriorityQueue;
+import java.util.Comparator;
+
+public class TweetDateComparator implements Comparator<Tweet> {
+	
+	@Override
+	public int compare(Tweet t1, Tweet t2) {
+		if (t1.posted < t2.posted)
+			return 1;
+		if (t1.posted == t2.posted)
+			return 0;
+		if (t1.posetd > t2.posted)
+			return -1;
+	}
+
+}
 
 public class TwitterHandler implements Twitter.Iface {
 	
@@ -88,14 +104,59 @@ public class TwitterHandler implements Twitter.Iface {
     public List<Tweet> readTweetsByUser(String handle, int howmany)
         throws NoSuchUserException
     {
-        return null;
+		checkUserExist(handle);
+		if (howmany <= 0)
+			return new LinkedList<Tweet>();
+		LinkedList<Tweet> tweetList = userTweetMap[handle];
+		ListIterator it = tweetList.listIterator();
+		LinkedList<Tweet> result = new LinkedList<Tweet>();
+		int count = 0;
+		while (it.hasNext() && count < howmany) {
+			result.add(it.next());
+			count++;
+		}	
+        return result;
     }
 
     @Override
     public List<Tweet> readTweetsBySubscription(String handle, int howmany)
         throws NoSuchUserException
     {
-        return null;
+		checkUserExist(handle);
+		if (howmany <= 0)
+			return new LinkedList<Tweet>();
+		LinkedList<Tweet> result = new LinkedList<Tweet>();
+
+		// list of subscribe users
+		LinkedList<String> subscribeList = userSubscribeMap[handle];
+		ListIterator it = subscribeList.listIterator();
+		int numSubscribe = subscribeList.size();
+		HashMap<String, ListIterator> itMap = new HashMap<String, ListIterator>();
+		Comparator<Tweet> comparator = new TweetDateComparator();
+		PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
+		String temp;
+		// add all iterators for subscribed users with tweets
+		for (int i = 0; i < numSubscribe; i++) {
+			temp = it.next();
+			if (userTweetMap[temp].isEmpty() != 0) {
+				itMap.put(temp, userTweetMap[temp].listIterator());
+				tweetPriorityQueue.add(itMap[temp].next());
+			}
+		}
+		int count = 0;
+		// tweet with latest posted time
+		Tweet tempTweet;
+		// Add iterator element to the priority queue
+		// If no more tweet for any user, remove its iterator from the arraylist
+		while (count < howmany && tweetPriorityQueue.isEmpty() != 0) {
+			tempTweet = tweetPriorityQueue.remove();
+			result.add(tempTweet);
+			if (itMap[tempTweet.handle].hasNext()) {
+				tweetPriorityQueue.add(itMap[tempTweet.handle].next());
+			}
+			count++;
+		}
+        return result;
     }
 
     @Override
