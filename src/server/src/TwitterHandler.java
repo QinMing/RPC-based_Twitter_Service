@@ -6,9 +6,23 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Calendar; //for getTimeInMillis()
-import edu.ucsd.cse124.Tweet;
+import java.lang.Long;
 
 public class TwitterHandler implements Twitter.Iface {
+    
+    private class TweetRich extends Tweet {
+        public HashSet<String> likedUsers;
+        public TweetRich(
+                         long tweetId,
+                         String handle,
+                         long posted,
+                         int numStars,
+                         String tweetString)
+        {
+            super(tweetId, handle, posted, numStars, tweetString);
+            this.likedUsers = new HashSet<String>();
+        }
+    }
 	
 	private HashSet<String> userName = new HashSet<String>();
 	//private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
@@ -16,9 +30,11 @@ public class TwitterHandler implements Twitter.Iface {
             new HashMap<String,LinkedList<String> >();
     
     public static final int MaxTweetLength = 140;
-    private int nextTweetID = 0;
-    private HashMap<String,LinkedList<Tweet> > userTweetMap =
-            new HashMap<String,LinkedList<Tweet> >();
+    private long nextTweetID = 0;
+    private HashMap<String, LinkedList<TweetRich> > userTweetMap =
+            new HashMap<String,LinkedList<TweetRich> >();
+    private HashMap<Long, TweetRich> tweetReg =
+            new HashMap<Long, TweetRich>();
     
 
     @Override
@@ -37,7 +53,7 @@ public class TwitterHandler implements Twitter.Iface {
 		LinkedList<String> subscribeList = new LinkedList<String>();
 		userSubscribeMap.put(handle, subscribeList);
         
-        LinkedList<Tweet> tweetList = new LinkedList<Tweet>();
+        LinkedList<TweetRich> tweetList = new LinkedList<TweetRich>();
         userTweetMap.put(handle, tweetList);
         
 		System.out.println("Created User");
@@ -51,6 +67,15 @@ public class TwitterHandler implements Twitter.Iface {
 			throw e;
 		}
 	}
+    
+    private void checkTweetExist(long id)
+        throws NoSuchTweetException
+    {
+        if (tweetReg.containsKey(new Long(id)) == false) {
+            throw new NoSuchTweetException();
+        }
+        
+    }
 
 	@Override
 	public void printSubscribeName(String handle)
@@ -100,16 +125,18 @@ public class TwitterHandler implements Twitter.Iface {
         if (tweetString.length()>MaxTweetLength){
             throw new TweetTooLongException();
         }
-
+        
         //create the tweet
-        ++nextTweetID;
         Calendar cal = Calendar.getInstance();
         long time = cal.getTimeInMillis() / 1000;
-        Tweet t = new Tweet(nextTweetID, handle, time, 0, tweetString);
+        TweetRich t = new TweetRich(nextTweetID, handle, time, 0, tweetString);
+        tweetReg.put(new Long(nextTweetID), t);
         
-	//append it to the user's tweet list
-        LinkedList<Tweet> userTweet = userTweetMap.get(handle);
+        //append it to the user's tweet list
+        LinkedList<TweetRich> userTweet = userTweetMap.get(handle);
         userTweet.addFirst(t);
+        
+        ++nextTweetID;
         System.out.println("Tweet posted.");
     }
 
@@ -117,6 +144,11 @@ public class TwitterHandler implements Twitter.Iface {
     public List<Tweet> readTweetsByUser(String handle, int howmany)
         throws NoSuchUserException
     {
+        ////////delete this
+        LinkedList<Tweet> res = new LinkedList<Tweet>();
+        TweetRich tr = new TweetRich(123,"asdf",1234,4,"asdf");
+        res.add(tr);
+        /////////////////
         return null;
     }
 
@@ -131,5 +163,7 @@ public class TwitterHandler implements Twitter.Iface {
     public void star(String handle, long tweetId) throws
         NoSuchUserException, NoSuchTweetException
     {
+        checkUserExist(handle);
+        checkTweetExist(tweetId);
     }
 }
