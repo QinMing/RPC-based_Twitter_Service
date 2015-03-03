@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Calendar; //for getTimeInMillis()
-import java.lang.Long;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
@@ -43,14 +42,15 @@ public class TwitterHandler implements Twitter.Iface {
   }
 
   private HashSet<String> userName = new HashSet<String>();
-  //private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
   private HashMap<String, LinkedList<String>> userSubscribeMap
           = new HashMap<String, LinkedList<String>>();
 
   public static final int MaxTweetLength = 140;
   private long nextTweetID = 0;
+  //Every user has a list of tweet
   private HashMap<String, LinkedList<TweetRich>> userTweetMap
           = new HashMap<String, LinkedList<TweetRich>>();
+  //Map tweet ID  to the tweet
   private HashMap<Long, TweetRich> tweetReg
           = new HashMap<Long, TweetRich>();
 
@@ -210,7 +210,7 @@ public class TwitterHandler implements Twitter.Iface {
     int count = 0;
     // tweet with latest posted time
     Tweet tempTweet;
-		// Add iterator element to the priority queue
+    // Add iterator element to the priority queue
     // If no more tweet for any user, remove its iterator from the arraylist
     while (count < howmany && !tweetPriorityQueue.isEmpty()) {
       tempTweet = tweetPriorityQueue.remove();
@@ -232,6 +232,8 @@ public class TwitterHandler implements Twitter.Iface {
           NoSuchUserException, NoSuchTweetException {
     checkUserExist(handle);
     checkTweetExist(tweetId);
-
+    TweetRich t = tweetReg.get(new Long(tweetId));
+    t.likedUsers.add(handle);
+    t.numStars = t.likedUsers.size();
   }
 }
