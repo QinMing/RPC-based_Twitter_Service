@@ -5,12 +5,21 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.Calendar; //for getTimeInMillis()
+import edu.ucsd.cse124.Tweet;
 
 public class TwitterHandler implements Twitter.Iface {
 	
 	private HashSet<String> userName = new HashSet<String>();
 	//private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
-	private HashMap<String,LinkedList<String> > userSubscribeMap = new HashMap<String,LinkedList<String> >();
+	private HashMap<String,LinkedList<String> > userSubscribeMap =
+            new HashMap<String,LinkedList<String> >();
+    
+    public static final int MaxTweetLength = 140;
+    private int nextTweetID = 0;
+    private HashMap<String,LinkedList<Tweet> > userTweetMap =
+            new HashMap<String,LinkedList<Tweet> >();
+    
 
     @Override
     public void ping() {
@@ -27,7 +36,11 @@ public class TwitterHandler implements Twitter.Iface {
 		}
 		LinkedList<String> subscribeList = new LinkedList<String>();
 		userSubscribeMap.put(handle, subscribeList);
-		System.out.println("test create User");
+        
+        LinkedList<Tweet> tweetList = new LinkedList<Tweet>();
+        userTweetMap.put(handle, tweetList);
+        
+		System.out.println("Created User");
     }
 
 	private void checkUserExist(String handle) 
@@ -82,6 +95,22 @@ public class TwitterHandler implements Twitter.Iface {
     public void post(String handle, String tweetString)
         throws NoSuchUserException, TweetTooLongException
     {
+
+		checkUserExist(handle);
+        if (tweetString.length()>MaxTweetLength){
+            throw new TweetTooLongException();
+        }
+
+        //create the tweet
+        ++nextTweetID;
+        Calendar cal = Calendar.getInstance();
+        long time = cal.getTimeInMillis() / 1000;
+        Tweet t = new Tweet(nextTweetID, handle, time, 0, tweetString);
+        
+	//append it to the user's tweet list
+        LinkedList<Tweet> userTweet = userTweetMap.get(handle);
+        userTweet.addFirst(t);
+        System.out.println("Tweet posted.");
     }
 
     @Override

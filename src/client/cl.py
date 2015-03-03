@@ -31,18 +31,28 @@ try:
   client.createUser('jwchen')
   client.createUser('mqin')
   #client.createUser('jwchen')
-  client.subscribe('mqin','jwchen')
-  client.printSubscribeName('mqin')
-  client.unsubscribe('mqin','jwchen')
-  client.printSubscribeName('mqin')
-  print 'ping()'
-
+  #client.subscribe('mqin','jwchen')
+  #client.printSubscribeName('mqin')
+  #client.unsubscribe('mqin','jwchen')
+  #client.printSubscribeName('mqin')
+  client.post('mqin',"Hello guys")
+  print "post sent"
   # Close!
   transport.close()
+except AlreadyExistsException as tx:
+  print "Already Exists Exception";
+
+except NoSuchUserException as tx:
+  print "No Such User Exception"
+
+except NoSuchUserException as tx:
+  print "No Such User Exception"
+
+except TweetTooLongException as tx:
+  print "Tweet Too Long Exception"
+
+except NoSuchTweetException as tx:
+  print("NoSuchTweetException")
 
 except Thrift.TException, tx:
   print '%s' % (tx.user)
-  #if tx is AlreadyExistsException:
-    #print '%s' % (tx.user)
-  #else: 
-  	#print '%s' % (tx.message)
