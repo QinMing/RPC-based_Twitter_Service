@@ -7,22 +7,23 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.PriorityQueue;
 import java.util.Comparator;
-
-public class TweetDateComparator implements Comparator<Tweet> {
-	
-	@Override
-	public int compare(Tweet t1, Tweet t2) {
-		if (t1.posted < t2.posted)
-			return 1;
-		if (t1.posted == t2.posted)
-			return 0;
-		if (t1.posetd > t2.posted)
-			return -1;
-	}
-
-}
+import java.util.Calendar;
 
 public class TwitterHandler implements Twitter.Iface {
+	
+	public class TweetDateComparator implements Comparator<Tweet> {
+
+		@Override
+		public int compare(Tweet t1, Tweet t2) {
+			if (t1.posted < t2.posted)
+				return 1;
+			if (t1.posted == t2.posted)
+				return 0;
+			return -1;
+		}
+
+	}
+
 	
 	private HashSet<String> userName = new HashSet<String>();
 	//private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
@@ -118,7 +119,7 @@ public class TwitterHandler implements Twitter.Iface {
         //create the tweet
         ++nextTweetID;
         Calendar cal = Calendar.getInstance();
-        long time = cal.getTimeInMillis() / 1000;
+        long time = cal.getTimeInMillis();
         Tweet t = new Tweet(nextTweetID, handle, time, 0, tweetString);
         
 	//append it to the user's tweet list
@@ -134,12 +135,12 @@ public class TwitterHandler implements Twitter.Iface {
 		checkUserExist(handle);
 		if (howmany <= 0)
 			return new LinkedList<Tweet>();
-		LinkedList<Tweet> tweetList = userTweetMap[handle];
-		ListIterator it = tweetList.listIterator();
+		LinkedList<Tweet> tweetList = userTweetMap.get(handle);
+		ListIterator<Tweet> it = tweetList.listIterator();
 		LinkedList<Tweet> result = new LinkedList<Tweet>();
 		int count = 0;
 		while (it.hasNext() && count < howmany) {
-			result.add(it.next());
+			result.addLast(it.next());
 			count++;
 		}	
         return result;
@@ -155,19 +156,19 @@ public class TwitterHandler implements Twitter.Iface {
 		LinkedList<Tweet> result = new LinkedList<Tweet>();
 
 		// list of subscribe users
-		LinkedList<String> subscribeList = userSubscribeMap[handle];
-		ListIterator it = subscribeList.listIterator();
+		LinkedList<String> subscribeList = userSubscribeMap.get(handle);
+		ListIterator<String> it = subscribeList.listIterator();
 		int numSubscribe = subscribeList.size();
-		HashMap<String, ListIterator> itMap = new HashMap<String, ListIterator>();
+		HashMap<String, ListIterator<Tweet> > itMap = new HashMap<String, ListIterator<Tweet> >();
 		Comparator<Tweet> comparator = new TweetDateComparator();
 		PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
 		String temp;
 		// add all iterators for subscribed users with tweets
 		for (int i = 0; i < numSubscribe; i++) {
 			temp = it.next();
-			if (userTweetMap[temp].isEmpty() != 0) {
-				itMap.put(temp, userTweetMap[temp].listIterator());
-				tweetPriorityQueue.add(itMap[temp].next());
+			if (!userTweetMap.get(temp).isEmpty()) {
+				itMap.put(temp, userTweetMap.get(temp).listIterator());
+				tweetPriorityQueue.add(itMap.get(temp).next());
 			}
 		}
 		int count = 0;
@@ -175,11 +176,11 @@ public class TwitterHandler implements Twitter.Iface {
 		Tweet tempTweet;
 		// Add iterator element to the priority queue
 		// If no more tweet for any user, remove its iterator from the arraylist
-		while (count < howmany && tweetPriorityQueue.isEmpty() != 0) {
+		while (count < howmany && !tweetPriorityQueue.isEmpty()) {
 			tempTweet = tweetPriorityQueue.remove();
-			result.add(tempTweet);
-			if (itMap[tempTweet.handle].hasNext()) {
-				tweetPriorityQueue.add(itMap[tempTweet.handle].next());
+			result.addLast(tempTweet);
+			if (itMap.get(tempTweet.handle).hasNext()) {
+				tweetPriorityQueue.add(itMap.get(tempTweet.handle).next());
 			}
 			count++;
 		}

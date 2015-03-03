@@ -30,15 +30,27 @@ try:
   client.ping()
   client.createUser('jwchen')
   client.createUser('mqin')
+  client.createUser('porter')
   #client.createUser('jwchen')
+  client.subscribe('mqin','jwchen')
   client.subscribe('mqin','porter')
-  client.printSubscribeName('mqin')
-  client.unsubscribe('mqin','jwchen')
-  client.printSubscribeName('mqin')
-  print 'ping()'
+  #client.printSubscribeName('mqin')
+  #client.unsubscribe('mqin','jwchen')
+  #client.printSubscribeName('mqin')
 
-  client.post('mqin',"Hello guys")
-  print "post sent"
+  client.post('porter',"porter -1")
+  client.post('jwchen',"jwchen 0")
+  client.post('jwchen',"jwchen 1")
+  client.post('porter',"porter 2")
+  client.post('jwchen',"jwchen 3")
+  client.post('jwchen',"porter 4")
+  #client.post('jwchen',"Facebook intern success")
+  tweets = client.readTweetsBySubscription('mqin', 6);
+  #tweets = client.readTweetsByUser('jwchen',4)
+  for item in tweets:
+	print item.tweetString
+
+  #print "post sent"
   # Close!
   transport.close()
 
