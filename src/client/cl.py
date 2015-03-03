@@ -50,6 +50,10 @@ try:
   for item in tweets:
 	print item.tweetString
 
+  client.star('mqin',tweets[0].tweetId)
+  client.star('mqin',tweets[0].tweetId)
+  client.star('jwchen',tweets[0].tweetId)
+
   #print "post sent"
   # Close!
   transport.close()

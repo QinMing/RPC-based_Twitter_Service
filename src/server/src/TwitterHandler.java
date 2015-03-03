@@ -235,5 +235,12 @@ public class TwitterHandler implements Twitter.Iface {
     TweetRich t = tweetReg.get(new Long(tweetId));
     t.likedUsers.add(handle);
     t.numStars = t.likedUsers.size();
+    
+    System.out.print(handle);
+    System.out.print(" liked Tweet ");
+    System.out.print(tweetId);
+    System.out.print(", which is liked ");
+    System.out.print(t.numStars);
+    System.out.println(" times");
   }
 }
