@@ -107,6 +107,18 @@ public class TwitterHandler implements Twitter.Iface {
 	    }
 		System.out.println("Print Complete");
 	}
+    
+    private void printTweetList(List<Tweet> l){
+        for (Tweet t: l){
+            System.out.print("{time=");
+            System.out.print(t.posted);
+            System.out.print(",user=");
+            System.out.print(t.handle);
+            System.out.print(",string=");
+            System.out.print(t.tweetString);
+            System.out.println("}");
+        }
+    }
 
     @Override
     public void subscribe(String handle, String theirhandle)
@@ -148,9 +160,7 @@ public class TwitterHandler implements Twitter.Iface {
         long time = cal.getTimeInMillis();
         
         TweetRich t = new TweetRich(nextTweetID, handle, time, 0, tweetString);
-        
         tweetReg.put(new Long(nextTweetID), t);
-        Tweet t = new Tweet(nextTweetID, handle, time, 0, tweetString);
         
         //append it to the user's tweet list
         LinkedList<TweetRich> userTweet = userTweetMap.get(handle);
@@ -167,8 +177,8 @@ public class TwitterHandler implements Twitter.Iface {
 		checkUserExist(handle);
 		if (howmany <= 0)
 			return new LinkedList<Tweet>();
-		LinkedList<Tweet> tweetList = userTweetMap.get(handle);
-		ListIterator<Tweet> it = tweetList.listIterator();
+		LinkedList<TweetRich> tweetList = userTweetMap.get(handle);
+		ListIterator<TweetRich> it = tweetList.listIterator();
 		LinkedList<Tweet> result = new LinkedList<Tweet>();
 		int count = 0;
 		while (it.hasNext() && count < howmany) {
@@ -191,7 +201,8 @@ public class TwitterHandler implements Twitter.Iface {
 		LinkedList<String> subscribeList = userSubscribeMap.get(handle);
 		ListIterator<String> it = subscribeList.listIterator();
 		int numSubscribe = subscribeList.size();
-		HashMap<String, ListIterator<Tweet> > itMap = new HashMap<String, ListIterator<Tweet> >();
+		HashMap<String, ListIterator<TweetRich> > itMap =
+                new HashMap<String, ListIterator<TweetRich> >();
 		Comparator<Tweet> comparator = new TweetDateComparator();
 		PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
 		String temp;
@@ -216,6 +227,10 @@ public class TwitterHandler implements Twitter.Iface {
 			}
 			count++;
 		}
+        
+        //debug
+        printTweetList(result);
+        
         return result;
     }
 
@@ -225,5 +240,6 @@ public class TwitterHandler implements Twitter.Iface {
     {
         checkUserExist(handle);
         checkTweetExist(tweetId);
+        
     }
 }
