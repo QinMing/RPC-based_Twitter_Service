@@ -37,12 +37,21 @@ try:
   client.printSubscribeName('mqin')
   print 'ping()'
 
+  client.post('mqin',"Hello guys")
+  print "post sent"
   # Close!
   transport.close()
 
+
+except TweetTooLongException as tx:
+  print "Tweet Too Long Exception"
+except NoSuchTweetException as tx:
+  print("NoSuchTweetException")
 except AlreadyExistsException, tx:
   print '%s' % (tx.user)
+  print 'Already Exists Exception'
 except NoSuchUserException, tx:
   print '%s' % (tx.user)
+  print "No Such User Exception"
 except Thrift.TException, tx:
   print '%s' % (tx.message)
