@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Calendar; //for getTimeInMillis()
 import java.lang.Long;
+import java.util.PriorityQueue;
+import java.util.Comparator;
+
 
 public class TwitterHandler implements Twitter.Iface {
     
@@ -23,6 +26,20 @@ public class TwitterHandler implements Twitter.Iface {
             this.likedUsers = new HashSet<String>();
         }
     }
+	
+	public class TweetDateComparator implements Comparator<Tweet> {
+
+		@Override
+		public int compare(Tweet t1, Tweet t2) {
+			if (t1.posted < t2.posted)
+				return 1;
+			if (t1.posted == t2.posted)
+				return 0;
+			return -1;
+		}
+
+	}
+
 	
 	private HashSet<String> userName = new HashSet<String>();
 	//private HashMap<int, Tweet>  userAccount = new HashSet<int, Tweet>();
@@ -128,9 +145,12 @@ public class TwitterHandler implements Twitter.Iface {
         
         //create the tweet
         Calendar cal = Calendar.getInstance();
-        long time = cal.getTimeInMillis() / 1000;
+        long time = cal.getTimeInMillis();
+        
         TweetRich t = new TweetRich(nextTweetID, handle, time, 0, tweetString);
+        
         tweetReg.put(new Long(nextTweetID), t);
+        Tweet t = new Tweet(nextTweetID, handle, time, 0, tweetString);
         
         //append it to the user's tweet list
         LinkedList<TweetRich> userTweet = userTweetMap.get(handle);
@@ -144,19 +164,59 @@ public class TwitterHandler implements Twitter.Iface {
     public List<Tweet> readTweetsByUser(String handle, int howmany)
         throws NoSuchUserException
     {
-        ////////delete this
-        LinkedList<Tweet> res = new LinkedList<Tweet>();
-        TweetRich tr = new TweetRich(123,"asdf",1234,4,"asdf");
-        res.add(tr);
-        /////////////////
-        return null;
+		checkUserExist(handle);
+		if (howmany <= 0)
+			return new LinkedList<Tweet>();
+		LinkedList<Tweet> tweetList = userTweetMap.get(handle);
+		ListIterator<Tweet> it = tweetList.listIterator();
+		LinkedList<Tweet> result = new LinkedList<Tweet>();
+		int count = 0;
+		while (it.hasNext() && count < howmany) {
+			result.addLast(it.next());
+			count++;
+		}	
+        return result;
     }
 
     @Override
     public List<Tweet> readTweetsBySubscription(String handle, int howmany)
         throws NoSuchUserException
     {
-        return null;
+		checkUserExist(handle);
+		if (howmany <= 0)
+			return new LinkedList<Tweet>();
+		LinkedList<Tweet> result = new LinkedList<Tweet>();
+
+		// list of subscribe users
+		LinkedList<String> subscribeList = userSubscribeMap.get(handle);
+		ListIterator<String> it = subscribeList.listIterator();
+		int numSubscribe = subscribeList.size();
+		HashMap<String, ListIterator<Tweet> > itMap = new HashMap<String, ListIterator<Tweet> >();
+		Comparator<Tweet> comparator = new TweetDateComparator();
+		PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
+		String temp;
+		// add all iterators for subscribed users with tweets
+		for (int i = 0; i < numSubscribe; i++) {
+			temp = it.next();
+			if (!userTweetMap.get(temp).isEmpty()) {
+				itMap.put(temp, userTweetMap.get(temp).listIterator());
+				tweetPriorityQueue.add(itMap.get(temp).next());
+			}
+		}
+		int count = 0;
+		// tweet with latest posted time
+		Tweet tempTweet;
+		// Add iterator element to the priority queue
+		// If no more tweet for any user, remove its iterator from the arraylist
+		while (count < howmany && !tweetPriorityQueue.isEmpty()) {
+			tempTweet = tweetPriorityQueue.remove();
+			result.addLast(tempTweet);
+			if (itMap.get(tempTweet.handle).hasNext()) {
+				tweetPriorityQueue.add(itMap.get(tempTweet.handle).next());
+			}
+			count++;
+		}
+        return result;
     }
 
     @Override
