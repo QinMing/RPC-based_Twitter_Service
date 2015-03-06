@@ -61,18 +61,23 @@ public class TwitterHandler implements Twitter.Iface {
     
     @Override
     public void createUser(String handle) throws AlreadyExistsException {
-        System.out.println(handle);
-        if (userName.add(handle) == false) {
-            AlreadyExistsException e = new AlreadyExistsException(handle);
-            throw e;
+        
+        synchronized(this){
+            
+            System.out.println(handle);
+            if (userName.add(handle) == false) {
+                AlreadyExistsException e = new AlreadyExistsException(handle);
+                throw e;
+            }
+            LinkedList<String> subscribeList = new LinkedList<String>();
+            userSubscribeMap.put(handle, subscribeList);
+            
+            LinkedList<TweetRich> tweetList = new LinkedList<TweetRich>();
+            userTweetMap.put(handle, tweetList);
+            
+            System.out.println("Created User");
+            
         }
-        LinkedList<String> subscribeList = new LinkedList<String>();
-        userSubscribeMap.put(handle, subscribeList);
-        
-        LinkedList<TweetRich> tweetList = new LinkedList<TweetRich>();
-        userTweetMap.put(handle, tweetList);
-        
-        System.out.println("Created User");
     }
     
     private void checkUserExist(String handle)
@@ -94,14 +99,18 @@ public class TwitterHandler implements Twitter.Iface {
     @Override
     public void printSubscribeName(String handle)
     throws NoSuchUserException {
-        checkUserExist(handle);
-        LinkedList<String> subscribeList = userSubscribeMap.get(handle);
-        ListIterator<String> listIterator = subscribeList.listIterator();
-        System.out.println("Print Subscribe List");
-        while (listIterator.hasNext()) {
-            System.out.println("Subscribed: " + listIterator.next());
+        
+        synchronized(this){
+            checkUserExist(handle);
+            LinkedList<String> subscribeList = userSubscribeMap.get(handle);
+            ListIterator<String> listIterator = subscribeList.listIterator();
+            System.out.println("Print Subscribe List");
+            while (listIterator.hasNext()) {
+                System.out.println("Subscribed: " + listIterator.next());
+            }
+            System.out.println("Print Complete");
         }
-        System.out.println("Print Complete");
+        
     }
     
     private void printTweetList(List<Tweet> l) {
@@ -119,128 +128,151 @@ public class TwitterHandler implements Twitter.Iface {
     @Override
     public void subscribe(String handle, String theirhandle)
     throws NoSuchUserException {
-        System.out.println("user name:            " + handle);
-        System.out.println("subscribed user name: " + theirhandle);
-        checkUserExist(handle);
-        checkUserExist(theirhandle);
-        LinkedList<String> userSubList = userSubscribeMap.get(handle);
-        userSubList.add(theirhandle);
-        System.out.println("test subscribe user");
+        
+        synchronized(this){
+            System.out.println("user name:            " + handle);
+            System.out.println("subscribed user name: " + theirhandle);
+            checkUserExist(handle);
+            checkUserExist(theirhandle);
+            LinkedList<String> userSubList = userSubscribeMap.get(handle);
+            userSubList.add(theirhandle);
+            System.out.println("test subscribe user");
+        }
+        
     }
     
     @Override
     public void unsubscribe(String handle, String theirhandle)
     throws NoSuchUserException {
-        System.out.println("user name:            " + handle);
-        System.out.println("subscribed user name: " + theirhandle);
-        checkUserExist(handle);
-        checkUserExist(theirhandle);
-        LinkedList<String> userSubList = userSubscribeMap.get(handle);
-        userSubList.remove(theirhandle);
+        
+        synchronized(this){
+            System.out.println("user name:            " + handle);
+            System.out.println("subscribed user name: " + theirhandle);
+            checkUserExist(handle);
+            checkUserExist(theirhandle);
+            LinkedList<String> userSubList = userSubscribeMap.get(handle);
+            userSubList.remove(theirhandle);
+        }
+        
     }
     
     @Override
     public void post(String handle, String tweetString)
     throws NoSuchUserException, TweetTooLongException {
         
-        checkUserExist(handle);
-        if (tweetString.length() > MaxTweetLength) {
-            throw new TweetTooLongException();
+        synchronized(this){
+            checkUserExist(handle);
+            if (tweetString.length() > MaxTweetLength) {
+                throw new TweetTooLongException();
+            }
+            
+            //create the tweet
+            Calendar cal = Calendar.getInstance();
+            long time = cal.getTimeInMillis();
+            
+            TweetRich t = new TweetRich(nextTweetID, handle, time, 0, tweetString);
+            tweetReg.put(new Long(nextTweetID), t);
+            
+            //append it to the user's tweet list
+            LinkedList<TweetRich> userTweet = userTweetMap.get(handle);
+            userTweet.addFirst(t);
+            
+            ++nextTweetID;
+            System.out.println("Tweet posted.");
         }
         
-        //create the tweet
-        Calendar cal = Calendar.getInstance();
-        long time = cal.getTimeInMillis();
-        
-        TweetRich t = new TweetRich(nextTweetID, handle, time, 0, tweetString);
-        tweetReg.put(new Long(nextTweetID), t);
-        
-        //append it to the user's tweet list
-        LinkedList<TweetRich> userTweet = userTweetMap.get(handle);
-        userTweet.addFirst(t);
-        
-        ++nextTweetID;
-        System.out.println("Tweet posted.");
     }
     
     @Override
     public List<Tweet> readTweetsByUser(String handle, int howmany)
     throws NoSuchUserException {
-        checkUserExist(handle);
-        if (howmany <= 0) {
-            return new LinkedList<Tweet>();
+        
+        synchronized(this){
+            checkUserExist(handle);
+            if (howmany <= 0) {
+                return new LinkedList<Tweet>();
+            }
+            LinkedList<TweetRich> tweetList = userTweetMap.get(handle);
+            ListIterator<TweetRich> it = tweetList.listIterator();
+            LinkedList<Tweet> result = new LinkedList<Tweet>();
+            int count = 0;
+            while (it.hasNext() && count < howmany) {
+                result.addLast(it.next());
+                count++;
+            }
+            return result;
         }
-        LinkedList<TweetRich> tweetList = userTweetMap.get(handle);
-        ListIterator<TweetRich> it = tweetList.listIterator();
-        LinkedList<Tweet> result = new LinkedList<Tweet>();
-        int count = 0;
-        while (it.hasNext() && count < howmany) {
-            result.addLast(it.next());
-            count++;
-        }
-        return result;
+        
     }
     
     @Override
     public List<Tweet> readTweetsBySubscription(String handle, int howmany)
     throws NoSuchUserException {
-        checkUserExist(handle);
-        if (howmany <= 0) {
-            return new LinkedList<Tweet>();
-        }
-        LinkedList<Tweet> result = new LinkedList<Tweet>();
         
-        // list of subscribe users
-        LinkedList<String> subscribeList = userSubscribeMap.get(handle);
-        ListIterator<String> it = subscribeList.listIterator();
-        int numSubscribe = subscribeList.size();
-        HashMap<String, ListIterator<TweetRich>> itMap
-        = new HashMap<String, ListIterator<TweetRich>>();
-        Comparator<Tweet> comparator = new TweetDateComparator();
-        PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
-        String temp;
-        // add all iterators for subscribed users with tweets
-        for (int i = 0; i < numSubscribe; i++) {
-            temp = it.next();
-            if (!userTweetMap.get(temp).isEmpty()) {
-                itMap.put(temp, userTweetMap.get(temp).listIterator());
-                tweetPriorityQueue.add(itMap.get(temp).next());
+        synchronized(this){
+            checkUserExist(handle);
+            if (howmany <= 0) {
+                return new LinkedList<Tweet>();
             }
-        }
-        int count = 0;
-        // tweet with latest posted time
-        Tweet tempTweet;
-        // Add iterator element to the priority queue
-        // If no more tweet for any user, remove its iterator from the arraylist
-        while (count < howmany && !tweetPriorityQueue.isEmpty()) {
-            tempTweet = tweetPriorityQueue.remove();
-            result.addLast(tempTweet);
-            if (itMap.get(tempTweet.handle).hasNext()) {
-                tweetPriorityQueue.add(itMap.get(tempTweet.handle).next());
+            LinkedList<Tweet> result = new LinkedList<Tweet>();
+            
+            // list of subscribe users
+            LinkedList<String> subscribeList = userSubscribeMap.get(handle);
+            ListIterator<String> it = subscribeList.listIterator();
+            int numSubscribe = subscribeList.size();
+            HashMap<String, ListIterator<TweetRich>> itMap
+            = new HashMap<String, ListIterator<TweetRich>>();
+            Comparator<Tweet> comparator = new TweetDateComparator();
+            PriorityQueue<Tweet> tweetPriorityQueue = new PriorityQueue<Tweet>(numSubscribe, comparator);
+            String temp;
+            // add all iterators for subscribed users with tweets
+            for (int i = 0; i < numSubscribe; i++) {
+                temp = it.next();
+                if (!userTweetMap.get(temp).isEmpty()) {
+                    itMap.put(temp, userTweetMap.get(temp).listIterator());
+                    tweetPriorityQueue.add(itMap.get(temp).next());
+                }
             }
-            count++;
+            int count = 0;
+            // tweet with latest posted time
+            Tweet tempTweet;
+            // Add iterator element to the priority queue
+            // If no more tweet for any user, remove its iterator from the arraylist
+            while (count < howmany && !tweetPriorityQueue.isEmpty()) {
+                tempTweet = tweetPriorityQueue.remove();
+                result.addLast(tempTweet);
+                if (itMap.get(tempTweet.handle).hasNext()) {
+                    tweetPriorityQueue.add(itMap.get(tempTweet.handle).next());
+                }
+                count++;
+            }
+            
+            //debug
+            printTweetList(result);
+            
+            return result;
         }
         
-        //debug
-        printTweetList(result);
-        
-        return result;
     }
     
     @Override
     public void star(String handle, long tweetId) throws
     NoSuchUserException, NoSuchTweetException {
-        checkUserExist(handle);
-        checkTweetExist(tweetId);
-        TweetRich t = tweetReg.get(new Long(tweetId));
-        t.likedUsers.add(handle);
-        t.numStars = t.likedUsers.size();
         
-        System.out.print(handle);
-        System.out.print(" liked Tweet ");
-        System.out.print(tweetId);
-        System.out.print(", which is liked ");
-        System.out.print(t.numStars);
-        System.out.println(" times");
+        synchronized(this){
+            checkUserExist(handle);
+            checkTweetExist(tweetId);
+            TweetRich t = tweetReg.get(new Long(tweetId));
+            t.likedUsers.add(handle);
+            t.numStars = t.likedUsers.size();
+            
+            System.out.print(handle);
+            System.out.print(" liked Tweet ");
+            System.out.print(tweetId);
+            System.out.print(", which is liked ");
+            System.out.print(t.numStars);
+            System.out.println(" times");
+        }
+        
     }
 }
