@@ -112,9 +112,11 @@ def do_tests():
     bob_tweets = do_RPC('readTweetsByUser','bob',10)        
     if not(bob_tweets[0].tweetString == tweet_2 and
            bob_tweets[1].tweetString == tweet_1):
-         print "Failed!"     
+         print "Failed!" 
     else: 
         print "Passed!"
+
+# read
 
 
 if __name__ == "__main__":

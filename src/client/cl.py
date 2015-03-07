@@ -45,7 +45,8 @@ try:
   client.post('jwchen',"jwchen 3")
   client.post('jwchen',"porter 4")
   #client.post('jwchen',"Facebook intern success")
-  tweets = client.readTweetsBySubscription('mqin', 6);
+  tweets = client.readTweetsBySubscription('mqin', 100);
+  tweets = client.readTweetsBySubscription('mqin', 2);
   #tweets = client.readTweetsByUser('jwchen',4)
   for item in tweets:
 	print item.tweetString

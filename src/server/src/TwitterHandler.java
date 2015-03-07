@@ -165,6 +165,7 @@ public class TwitterHandler implements Twitter.Iface {
         synchronized(this){
             checkUserExist(handle);
             if (tweetString.length() > MaxTweetLength) {
+                System.out.println("TweetTooLongException");
                 throw new TweetTooLongException();
             }
             
@@ -203,7 +204,7 @@ public class TwitterHandler implements Twitter.Iface {
                 result.addLast(it.next());
                 count++;
             }
-            System.out.println("read " + Integer.toString(howmany) + " tweets by user ["+handle+"]:");
+            System.out.println("Someone read " + Integer.toString(howmany) + " tweets by user ["+handle+"]:");
             printTweetList(result);
             return result;
         }
@@ -217,6 +218,7 @@ public class TwitterHandler implements Twitter.Iface {
         synchronized(this){
             checkUserExist(handle);
             if (howmany <= 0) {
+                System.out.println(handle+" read " + Integer.toString(howmany) + " tweets by subscription. Return empty list");
                 return new LinkedList<Tweet>();
             }
             LinkedList<Tweet> result = new LinkedList<Tweet>();
@@ -252,7 +254,7 @@ public class TwitterHandler implements Twitter.Iface {
                 count++;
             }
             
-            System.out.println("read " + Integer.toString(howmany) + " by subscription of ["+handle+"]:");
+            System.out.println(handle+" read " + Integer.toString(howmany) + " tweets by subscription:");
             printTweetList(result);
             
             return result;
