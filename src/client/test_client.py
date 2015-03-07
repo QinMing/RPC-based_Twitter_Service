@@ -38,6 +38,9 @@ def do_RPC(service, handle, value=None):
         elif service == "subscribe":
             return client.subscribe(handle, value)
 
+        elif service == "unsubscribe":
+            return client.unsubscribe(handle, value)
+        
         elif service == "post":
             return client.post(handle, value)
 
@@ -46,7 +49,9 @@ def do_RPC(service, handle, value=None):
 
         elif service == "readTweetsBySubscription":
             return client.readTweetsBySubscription(handle, int(value))
-               
+
+        elif service == "star":
+            return client.star(handle, int(value))
 
         # Close!
         transport.close()
@@ -163,7 +168,7 @@ def do_tests():
 	Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
 	for tweets in Jake_tweets:
 		print tweets
-	if not(
+	if not(len(Jake_tweets) == 5 and
 	Jake_tweets[0].tweetString == tweet_5 and 
 	Jake_tweets[1].tweetString == tweet_4 and 
 	Jake_tweets[2].tweetString == tweet_3 and 
@@ -172,6 +177,63 @@ def do_tests():
 		print "Failed!!!!"
 	else:
 		print "Passed!"
+
+    # SUBSCRIBE AND UNSUBSCRIBE
+    print "Testing subscribe and unsubscribe"
+    if do_RPC('unsubscribe', 'jake', 'bob'):
+        print 'Failed!!!!'
+    else:
+        print 'Passed!'
+    print "now read the tweet"
+    Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
+    for tweets in Jake_tweets:
+        print tweets
+    if not(len(Jake_tweets) == 2 and
+               Jake_tweets[0].tweetString == tweet_4 and
+               Jake_tweets[1].tweetString == tweet_3):
+        print "Failed!!!!"
+    else:
+        print "Passed!"
+
+    #Testing "like"
+    print "now no one like any tweet"
+    if not(Jake_tweets[0].numStars == 0):
+        print "Failed!!!!"
+    else:
+        print "Passed!"
+
+    print "like it"
+    if do_RPC('star', 'jake', Jake_tweets[0].tweetId):
+        print 'Failed!!!!'
+    else:
+        print 'Passed!'
+    Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
+    if not(Jake_tweets[0].numStars == 1):
+        print "Failed!!!!"
+    else:
+        print "Passed!"
+
+    print "like it again"
+    if do_RPC('star', 'jake', Jake_tweets[0].tweetId):
+        print 'Failed!!!!'
+    else:
+        print 'Passed!'
+    Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
+    if not(Jake_tweets[0].numStars == 1):
+        print "Failed!!!!"
+    else:
+        print "Passed!"
+
+    print "some one else like it"
+    if do_RPC('star', 'alice', Jake_tweets[0].tweetId):
+        print 'Failed!!!!'
+    else:
+        print 'Passed!'
+    Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
+    if not(Jake_tweets[0].numStars == 2):
+        print "Failed!!!!"
+    else:
+        print "Passed!"
 
 
 if __name__ == "__main__":
