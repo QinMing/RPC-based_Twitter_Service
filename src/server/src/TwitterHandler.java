@@ -1,5 +1,6 @@
 package edu.ucsd.cse124;
 
+import java.util.Arrays; // for Arrays.toList()
 import java.util.List;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -64,8 +65,8 @@ public class TwitterHandler implements Twitter.Iface {
         
         synchronized(this){
             
-            System.out.println(handle);
             if (userName.add(handle) == false) {
+                System.out.println("Fail to create ["+handle+"]. Already exist");
                 AlreadyExistsException e = new AlreadyExistsException(handle);
                 throw e;
             }
@@ -75,7 +76,7 @@ public class TwitterHandler implements Twitter.Iface {
             LinkedList<TweetRich> tweetList = new LinkedList<TweetRich>();
             userTweetMap.put(handle, tweetList);
             
-            System.out.println("Created User");
+            System.out.println("Created User ["+handle+"]");
             
         }
     }
@@ -83,6 +84,7 @@ public class TwitterHandler implements Twitter.Iface {
     private void checkUserExist(String handle)
     throws NoSuchUserException {
         if (userName.contains(handle) == false) {
+            System.out.println("NoSuchUserException ("+handle+")");
             NoSuchUserException e = new NoSuchUserException(handle);
             throw e;
         }
@@ -91,6 +93,7 @@ public class TwitterHandler implements Twitter.Iface {
     private void checkTweetExist(long id)
     throws NoSuchTweetException {
         if (tweetReg.containsKey(new Long(id)) == false) {
+            System.out.println("NoSuchTweetException ("+Long.toString(id)+")");
             throw new NoSuchTweetException();
         }
         
@@ -104,7 +107,7 @@ public class TwitterHandler implements Twitter.Iface {
             checkUserExist(handle);
             LinkedList<String> subscribeList = userSubscribeMap.get(handle);
             ListIterator<String> listIterator = subscribeList.listIterator();
-            System.out.println("Print Subscribe List");
+            System.out.println("Print Subscribe List ...");
             while (listIterator.hasNext()) {
                 System.out.println("Subscribed: " + listIterator.next());
             }
@@ -130,13 +133,12 @@ public class TwitterHandler implements Twitter.Iface {
     throws NoSuchUserException {
         
         synchronized(this){
-            System.out.println("user name:            " + handle);
-            System.out.println("subscribed user name: " + theirhandle);
             checkUserExist(handle);
             checkUserExist(theirhandle);
             LinkedList<String> userSubList = userSubscribeMap.get(handle);
             userSubList.add(theirhandle);
-            System.out.println("test subscribe user");
+            System.out.print("user [" + handle);
+            System.out.println("] subscribed [" + theirhandle + "]");
         }
         
     }
@@ -146,12 +148,12 @@ public class TwitterHandler implements Twitter.Iface {
     throws NoSuchUserException {
         
         synchronized(this){
-            System.out.println("user name:            " + handle);
-            System.out.println("subscribed user name: " + theirhandle);
             checkUserExist(handle);
             checkUserExist(theirhandle);
             LinkedList<String> userSubList = userSubscribeMap.get(handle);
             userSubList.remove(theirhandle);
+            System.out.print("user [" + handle);
+            System.out.println("] unsubscribed [" + theirhandle + "]");
         }
         
     }
@@ -178,7 +180,8 @@ public class TwitterHandler implements Twitter.Iface {
             userTweet.addFirst(t);
             
             ++nextTweetID;
-            System.out.println("Tweet posted.");
+            System.out.print("Tweet posted: ");
+            printTweetList(new LinkedList<Tweet>(Arrays.asList(t)));
         }
         
     }
@@ -200,6 +203,8 @@ public class TwitterHandler implements Twitter.Iface {
                 result.addLast(it.next());
                 count++;
             }
+            System.out.println("read " + Integer.toString(howmany) + " tweets by user ["+handle+"]:");
+            printTweetList(result);
             return result;
         }
         
@@ -247,7 +252,7 @@ public class TwitterHandler implements Twitter.Iface {
                 count++;
             }
             
-            //debug
+            System.out.println("read " + Integer.toString(howmany) + " by subscription of ["+handle+"]:");
             printTweetList(result);
             
             return result;
