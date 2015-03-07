@@ -30,21 +30,6 @@ class TestTwitterServer(unittest.TestCase):
       # Connect!
       self.transport.open()
 
-      # Basic set up
-      self.client.createUser('jwchen')
-      self.client.createUser('mqin')
-      self.client.createUser('porter')
-
-      self.client.subscribe('mqin','jwchen')
-      self.client.subscribe('mqin','porter')
-
-      self.client.post('porter',"porter -1")
-      self.client.post('jwchen',"jwchen 0")
-      self.client.post('jwchen',"jwchen 1")
-      self.client.post('porter',"porter 2")
-      self.client.post('jwchen',"jwchen 3")
-      self.client.post('jwchen',"porter 4")
-
     except TweetTooLongException as tx:
       print "Tweet Too Long Exception"
     except NoSuchTweetException as tx:
@@ -66,22 +51,22 @@ class TestTwitterServer(unittest.TestCase):
   # TEST CASES
 
 
-  def test_readTweet(self):
-    tweets = self.client.readTweetsBySubscription('mqin', 6);
-    for item in tweets:
-      print item.tweetString
-    #results in output line
-
-  def test_starTwice(self):
-    #read Ming's subscription
-    tweets = self.client.readTweetsBySubscription('mqin', 1);
-    #Now Ming think he like it, but clicked 3 times
-    self.client.star('mqin',tweets[0].tweetId);
-    self.client.star('mqin',tweets[0].tweetId);
-    self.client.star('mqin',tweets[0].tweetId);
-    #Now Porter likes it as well
-    self.client.star('porter',tweets[0].tweetId);
-    #results in server side
+#  def test_readTweet(self):
+#    tweets = self.client.readTweetsBySubscription('mqin', 6);
+#    for item in tweets:
+#      print item.tweetString
+#    #results in output line
+#
+#  def test_starTwice(self):
+#    #read Ming's subscription
+#    tweets = self.client.readTweetsBySubscription('mqin', 1);
+#    #Now Ming think he like it, but clicked 3 times
+#    self.client.star('mqin',tweets[0].tweetId);
+#    self.client.star('mqin',tweets[0].tweetId);
+#    self.client.star('mqin',tweets[0].tweetId);
+#    #Now Porter likes it as well
+#    self.client.star('porter',tweets[0].tweetId);
+#    #results in server side
 
   def test_AlreadyExistsException(self):
     with self.assertRaises(AlreadyExistsException) as e:
@@ -105,8 +90,54 @@ I'm insane I'm insane I'm insane I'm insane I'm insane I'm insane
 I'm insane I'm insane I'm insane I'm insane I'm insane """)
 
 if 1:
-  suite = unittest.TestLoader().loadTestsFromTestCase(TestTwitterServer)
-  unittest.TextTestRunner(verbosity=2).run(suite)
-else:
   if __name__ == '__main__' :
-    unitest.main
+    try:
+      transport = TSocket.TSocket('localhost', 9999)
+      
+      # Buffering is critical. Raw sockets are very slow
+      transport = TTransport.TBufferedTransport(transport)
+      
+      # Wrap in a protocol
+      protocol = TBinaryProtocol.TBinaryProtocol(transport)
+      
+      # Create a client to use the protocol encoder
+      client = Twitter.Client(protocol)
+      
+      # Connect!
+      transport.open()
+      
+      # Basic set up
+      client.createUser('jwchen')
+      client.createUser('mqin')
+      client.createUser('porter')
+      
+      client.subscribe('mqin','jwchen')
+      client.subscribe('mqin','porter')
+      
+      client.post('porter',"porter -1")
+      client.post('jwchen',"jwchen 0")
+      client.post('jwchen',"jwchen 1")
+      client.post('porter',"porter 2")
+      client.post('jwchen',"jwchen 3")
+      client.post('jwchen',"porter 4")
+      
+      transport.close()
+
+    except TweetTooLongException as tx:
+      print "Tweet Too Long Exception"
+    except NoSuchTweetException as tx:
+      print("NoSuchTweetException")
+    except AlreadyExistsException, tx:
+      print '%s' % (tx.user)
+      print 'Already Exists Exception'
+    except NoSuchUserException, tx:
+      print '%s' % (tx.user)
+      print "No Such User Exception"
+    except Thrift.TException, tx:
+      print '%s' % (tx.message)
+      
+    #    unittest.main
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestTwitterServer)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+
