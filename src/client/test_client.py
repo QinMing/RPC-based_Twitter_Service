@@ -44,8 +44,8 @@ def do_RPC(service, handle, value=None):
         elif service == "readTweetsByUser":
             return client.readTweetsByUser(handle, int(value))
 
-        elif service == "readTweetsByUser":
-            return client.readTweetsByUser(handle, int(value))
+        elif service == "readTweetsBySubscription":
+            return client.readTweetsBySubscription(handle, int(value))
                
 
         # Close!
@@ -71,51 +71,108 @@ def do_tests():
     # createUser alice
     print "createUser for Alice .."
     if do_RPC('createUser', 'alice'):
-        print 'Failed!'
+        print 'Failed!!!!'
     else: 
         print "Passed!"
 
     # createUser bob
     print "createUser for Bob .."
     if do_RPC('createUser', 'bob'):
-        print 'Failed!'
+        print 'Failed!!!!'
     else: 
         print "Passed!"
+
+	print "createUser for Jake .."
+	if do_RPC('createUser', 'jake'):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
+
+	print "Jake subscribe Alice and Bob .."
+	if do_RPC('subscribe', 'jake', 'alice'):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
+	if do_RPC('subscribe', 'jake', 'bob'):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
+
 
     # createUser alice again!
     print "createUser for Alice .."
     if not (do_RPC('createUser','alice') == 'AlreadyExistsException'):
-        print "Failed! Expecting \'AlreadyExistsException\'"
+        print "Failed!!!! Expecting \'AlreadyExistsException\'"
     else: 
         print "Passed!"
 
     # Bob posts a tweet 
-    tweet_1 = "In high society, TCP is more welcome than UDP."
+    #tweet_1 = "In high society, TCP is more welcome than UDP."
+	tweet_1 = "I am Bob post with 0"
     print "Bob posts a tweet ..%s"%(tweet_1)
     if do_RPC('post','bob', tweet_1):
-        print 'Failed!'
+        print 'Failed!!!!'
     else: 
         print "Passed!"
    
     time.sleep(2)
 
     # Bob posts a tweet 
-    tweet_2 = " At least it knows a proper handshake."
+    #tweet_2 = " At least it knows a proper handshake."
+    tweet_2 = "I am Bob post with 1"
     print "Bob posts a tweet ..%s"%(tweet_2)
     if do_RPC('post','bob', tweet_2):
-        print 'Failed!'
+        print 'Failed!!!!'
     else: 
         print "Passed!"
   
     # Alice reads Bob's tweets
-    print "Alice reads Bob's tweets"
+    print "Alice reads Bob's tweets 2"
     bob_tweets = do_RPC('readTweetsByUser','bob',10)        
     if not(bob_tweets[0].tweetString == tweet_2 and
            bob_tweets[1].tweetString == tweet_1):
-         print "Failed!"     
+         print "Failed!!!!"     
     else: 
         print "Passed!"
+	
+	time.sleep(2)
+	tweet_3 = "I am Alice post with 2."
+	print "Alice posts the a tweet ..%s"%(tweet_3)
+	if do_RPC('post', 'alice', tweet_3):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
 
+	time.sleep(2)
+	tweet_4 = "I am Alice post with 3."
+	print "Alice posts the a tweet ..%s"%(tweet_4)
+	if do_RPC('post', 'alice', tweet_4):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
+
+	time.sleep(2)
+	tweet_5 = "I am Bob post with 4."
+	print "Bob posts the a tweet ..%s"%(tweet_5)
+	if do_RPC('post', 'bob', tweet_5):
+		print 'Failed!!!!'
+	else:
+		print 'Passed!'
+
+	print "Jake read his subscribers' tweets"
+	Jake_tweets = do_RPC('readTweetsBySubscription','jake', 7)
+	for tweets in Jake_tweets:
+		print tweets
+	if not(
+	Jake_tweets[0].tweetString == tweet_5 and 
+	Jake_tweets[1].tweetString == tweet_4 and 
+	Jake_tweets[2].tweetString == tweet_3 and 
+	Jake_tweets[3].tweetString == tweet_2 and 
+	Jake_tweets[4].tweetString == tweet_1):
+		print "Failed!!!!"
+	else:
+		print "Passed!"
+			
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test createUser")
