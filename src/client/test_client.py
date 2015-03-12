@@ -235,6 +235,21 @@ def do_tests():
     else:
         print "Passed!"
 
+    print "post null tweet"
+    tweet_1 = ""
+    if do_RPC('post','bob', tweet_1):
+        print 'Failed!!!!'
+    else:
+        print "Passed!"
+
+    print "post tweet with all spaces"
+    tweet_1 = "               "
+    if do_RPC('post','bob', tweet_1):
+        print 'Failed!!!!'
+    else:
+        print "Passed!"
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test createUser")

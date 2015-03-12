@@ -16,7 +16,7 @@ from thrift.protocol import TBinaryProtocol
 class TestTwitterServer(unittest.TestCase):
   def setUp(self):
     try:
-      self.transport = TSocket.TSocket('localhost', 9999)
+      self.transport = TSocket.TSocket('localhost', 9090)
 
       # Buffering is critical. Raw sockets are very slow
       self.transport = TTransport.TBufferedTransport(self.transport)
