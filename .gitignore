@@ -1,2 +1,7 @@
 *.class
+
 *.jar
+
+*.pyc
+src/client/gen-py/*
+project3.tar.gz
