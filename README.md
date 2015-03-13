@@ -1,15 +1,19 @@
 # CSE 124's Project 3
 Winter 2015
 
+-------------
+
 Team members:
 
 Ming Qin <mingqin@ucsd.edu>
 
 Jiawei Chen <jic023@eng.ucsd.edu>
 
+-------------
+
 Instructor: George Porter <gmporter@cs.ucsd.edu>
 
-================================================
+--------------
 
 ## To build and run the server:
 
